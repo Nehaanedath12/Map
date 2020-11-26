@@ -8,6 +8,7 @@ import android.app.job.JobService;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -89,7 +90,7 @@ public class GetMapService extends JobService {
                                     }
                                 };
 
-                                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
                                         2000,
                                         10, locationListenerGPS);
                             }
