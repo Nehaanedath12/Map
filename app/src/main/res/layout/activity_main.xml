@@ -17,10 +17,11 @@
     <TextView
         android:id="@+id/text_loc"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="wrap_content"
         android:text="location"
+        android:background="@color/design_default_color_primary"
         android:padding="10dp"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:gravity="center"/>
     <fragment
         android:layout_below="@+id/text_loc"

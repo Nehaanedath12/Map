@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -64,6 +65,7 @@ public class GetMapService extends JobService {
 
                                         if (location != null) {
                                             lastLocation = location;
+                                            Toast.makeText(getApplicationContext(), "Ready!", Toast.LENGTH_SHORT).show();
                                             Log.d("locationnLat", location.getLatitude()+"" );
                                             Log.d("locationnLon", location.getLongitude()+"" );
                                             PublicData.location=location;
