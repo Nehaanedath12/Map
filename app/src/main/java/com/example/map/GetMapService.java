@@ -30,14 +30,10 @@ public class GetMapService extends JobService {
     JobParameters params;
     LocationManager locationManager;
     Location lastLocation;
-    SharedPreferences preferences;
-    SharedPreferences.Editor editor;
 
     @Override
     public boolean onStartJob(JobParameters params) {
         this.params = params;
-        preferences = getSharedPreferences("location",MODE_PRIVATE);
-        editor = preferences.edit();
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         asyncTask();
@@ -59,20 +55,18 @@ public class GetMapService extends JobService {
                         public void run() {
                             if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                                     ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                                ActivityCompat.requestPermissions((Activity) getApplicationContext(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 101);
                             } else {
+                                Log.d("locationnLat", "location.getLatitude"+"" );
+
                                 LocationListener locationListenerGPS = new LocationListener() {
                                     @Override
                                     public void onLocationChanged(@NonNull Location location) {
+
                                         if (location != null) {
                                             lastLocation = location;
                                             Log.d("locationnLat", location.getLatitude()+"" );
                                             Log.d("locationnLon", location.getLongitude()+"" );
-
-                                            editor.putString("latitude_B", "true");
-                                            editor.putString("latitude", String.valueOf(location.getLatitude()));
-                                            editor.putString("longitude", String.valueOf(location.getLongitude()));
-
+                                            PublicData.location=location;
 
                                         }
                                     }
@@ -99,14 +93,6 @@ public class GetMapService extends JobService {
                             }
                         }
                     }, 1000 );
-
-
-
-
-
-
-
-
 
                 return null;
             }
