@@ -9,8 +9,6 @@ import android.os.Build;
 import androidx.annotation.RequiresApi;
 
 public class ScheduleJob {
-
-
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void GetMapService(Context context) {
         JobScheduler js =

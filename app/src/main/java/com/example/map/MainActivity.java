@@ -72,118 +72,113 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        textView_loc=findViewById(R.id.text_loc);
-        refreshLayout=findViewById(R.id.refresh_layout);
-        polylinePoints=new ArrayList<>();
+        textView_loc = findViewById(R.id.text_loc);
+        refreshLayout = findViewById(R.id.refresh_layout);
+        polylinePoints = new ArrayList<>();
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         client = LocationServices.getFusedLocationProviderClient(this);
 
 
-
         isLocationEnabled();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 101);
-        }else {
-           ScheduleJob scheduleJob=new ScheduleJob();
+        } else {
+            ScheduleJob scheduleJob = new ScheduleJob();
             scheduleJob.GetMapService(this);
+            func();
+            }
+        }
+
+    private void func() {
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                refreshLayout.setRefreshing(false);
+                Location location = PublicData.location;
+                Log.d("PublicData", PublicData.count + "");
+
+                if (location != null) {
+                    Double lat = location.getLatitude();
+                    Double longi = location.getLongitude();
+                    textView_loc.setText("latitude : " + lat + "  " + "longitude : " + longi);
+
+                    Geocoder geocoder = new Geocoder(getApplicationContext());
+                    try {
+                        List<Address> addresses =
+                                geocoder.getFromLocation(lat, longi, 1);
+                        result = addresses.get(0).getLocality() + ":";
+                        result += addresses.get(0).getCountryName();
+
+                        supportMapFragment.getMapAsync(new OnMapReadyCallback() {
+                            @Override
+                            public void onMapReady(GoogleMap googleMap) {
+                                gMap = googleMap;
+//                                    gMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+
+                                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
+                                if (flag) {
+                                    marker2 = gMap.addMarker(new MarkerOptions().position(latLng).title(result).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)));
+                                }
 
 
+                                if (marker != null) {
+                                    marker.remove();
+                                    marker = gMap.addMarker(new MarkerOptions().position(latLng).title(result).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
 
+                                } else {
+                                    marker = gMap.addMarker(new MarkerOptions().position(latLng).title(result).icon(BitmapDescriptorFactory.defaultMarker(120.0f)));
+                                }
+                                gMap.setMaxZoomPreference(20);
+                                gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18.0f));
 
-            refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-                @Override
-                public void onRefresh() {
+                                polylinePoints.add(latLng);
 
-                    Location location = PublicData.location;
+                                if (polyline != null) {
+                                    polyline.setPoints(polylinePoints);
+                                    polyline.setWidth(10);
 
-                    refreshLayout.setRefreshing(false);
+                                } else {
+                                    polyline = gMap.addPolyline(new PolylineOptions().addAll(polylinePoints).color(Color.MAGENTA).jointType(JointType.ROUND).width(3.0f));
+                                }
 
-                    if (location != null) {
-                        Double lat = location.getLatitude();
-                        Double longi = location.getLongitude();
-                        textView_loc.setText("latitude : " + lat + "  " + "longitude : " + longi);
-                        Log.d("locationnnM", location.getLongitude() + "");
-
-                        Geocoder geocoder = new Geocoder(getApplicationContext());
-                        try {
-                            List<Address> addresses =
-                                    geocoder.getFromLocation(lat, longi, 1);
-                             result = addresses.get(0).getLocality() + ":";
-                            result += addresses.get(0).getCountryName();
-
-                            supportMapFragment.getMapAsync(new OnMapReadyCallback() {
-                                @Override
-                                public void onMapReady(GoogleMap googleMap) {
-                                    gMap = googleMap;
-//                                    gMap.setMapType(gMap.MAP_TYPE_SATELLITE);
-
-                                    LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-
-                                    if (flag) {
-                                        marker2 = gMap.addMarker(new MarkerOptions().position(latLng).title(result).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)));
-                                    }
-
-
-
-                                    if (marker != null) {
-                                        marker.remove();
-
-                                        marker = gMap.addMarker(new MarkerOptions().position(latLng).title(result).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-                                        gMap.setMaxZoomPreference(20);
-                                        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18.0f));
-
-                                    } else {
-                                        marker = gMap.addMarker(new MarkerOptions().position(latLng).title(result).icon(BitmapDescriptorFactory.defaultMarker(120.0f)));
-                                        gMap.setMaxZoomPreference(20);
-                                        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18.0f));
-                                    }
-
-                                    polylinePoints.add(latLng);
-
-
-                                    if (polyline != null) {
-                                        polyline.setPoints(polylinePoints);
-
-                                    } else {
-                                        polyline = gMap.addPolyline(new PolylineOptions().addAll(polylinePoints).color(Color.MAGENTA).jointType(JointType.ROUND).width(3.0f));
-                                    }
-
-                                    flag = false;
+                                flag = false;
 
 //                                    MarkerOptions options = new MarkerOptions().position(latLng);
 //                                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 10));
 //                                    googleMap.addMarker(options);
-                                }
-                            });
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-//                        refreshLayout.setRefreshing(false);
-                    } else {
-                        Toast.makeText(MainActivity.this, "wait!!", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
 
+                } else {
+                    Toast.makeText(MainActivity.this, "wait!!", Toast.LENGTH_SHORT).show();
                 }
-            });
             }
-        }
 
-
-
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        isLocationEnabled();
+        });
     }
+
+
+    //    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        isLocationEnabled();
+//    }
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == 101) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                ScheduleJob scheduleJob = new ScheduleJob();
+                scheduleJob.GetMapService(this);
+                func();
             } else {
                 Toast.makeText(this, "allow permission", Toast.LENGTH_SHORT).show();
             }

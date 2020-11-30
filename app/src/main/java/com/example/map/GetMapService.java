@@ -32,6 +32,7 @@ public class GetMapService extends JobService {
     JobParameters params;
     LocationManager locationManager;
     Location lastLocation;
+    int count=0;
 
     @Override
     public boolean onStartJob(JobParameters params) {
@@ -70,6 +71,10 @@ public class GetMapService extends JobService {
                                             Log.d("locationnLat", location.getLatitude()+"" );
                                             Log.d("locationnLon", location.getLongitude()+"" );
                                             PublicData.location=location;
+                                            count++;
+                                            PublicData.count=count;
+
+
 
                                         }
                                     }
